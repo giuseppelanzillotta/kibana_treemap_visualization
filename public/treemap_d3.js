@@ -28,15 +28,7 @@ export function renderTreeMap(o, data) {
     height = opts.height - margin.top - margin.bottom - theight,
     transitioning;
 
-  const euiColors = shuffleArray(palettes.euiPaletteColorBlind.colors);
-
-  function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
+  const euiColors = palettes.euiPaletteColorBlind.colors;
 
   var x = d3.scale.linear()
     .domain([0, width])

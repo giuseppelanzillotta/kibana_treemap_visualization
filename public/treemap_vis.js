@@ -1,28 +1,20 @@
 import optionsTemplate from './options_template.html';
 import TreemapVisualizationController from './treemap_vis_controller';
-import {
-  Schemas
-} from 'ui/vis/editors/default/schemas';
-import {
-  CATEGORY
-} from 'ui/vis/vis_category';
-import {
-  VisFactoryProvider
-} from 'ui/vis/vis_factory';
-import {
-  VisTypesRegistryProvider
-} from 'ui/registry/vis_types';
+import {Schemas} from 'ui/vis/editors/default/schemas';
+import {visFactory} from 'ui/vis/vis_factory';
+import { setup as visualizations } from '../../../src/legacy/core_plugins/visualizations/public/np_ready/public/legacy';
 import image from './images/treemap.svg';
 
-function TreemapVisualizationProvider(Private) {
-  const VisFactory = Private(VisFactoryProvider);
+visualizations.types.registerVisualization(TreemapVisualizationProvider);
 
-  return VisFactory.createBaseVisualization({
+
+function TreemapVisualizationProvider() {
+
+  return visFactory.createBaseVisualization({
     name: 'treemap_visualization',
     title: 'Treemap',
     image,
     description: 'Display values in a treemap visualization',
-    category: CATEGORY.BASIC,
     visualization: TreemapVisualizationController,
     editorConfig: {
       optionsTemplate: optionsTemplate,
@@ -47,4 +39,4 @@ function TreemapVisualizationProvider(Private) {
   });
 }
 
-VisTypesRegistryProvider.register(TreemapVisualizationProvider);
+export default TreemapVisualizationProvider;
