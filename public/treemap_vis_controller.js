@@ -24,9 +24,6 @@ export default class TreemapVisualizationController {
     });
     var keyLabels = getKeyLabels(table.columns);
     var data = nestData(values, keyLabels);
-    // we reduce the data, labels and columns as we don't want a level in the tree with a single child
-    keyLabels = reduceLabelsAndColumns(data, keyLabels, table.columns);
-    data = reduceLevels(data);
     var parent = $('#treemap').closest('.visualization');
     renderTreeMap({
       childLabels: keyLabels,
@@ -55,32 +52,6 @@ function nestData(values, keyLabels) {
   return data;
 }
 
-function reduceLevels(data) {
-  if (data.length == 1) {
-    if (data[0].values) {
-      return reduceLevels(data[0].values);
-    } else {
-      return data;
-    }
-  } else {
-    return data;
-  }
-}
-
-function reduceLabelsAndColumns(data, labels, columns) {
-  if (data.length == 1) {
-    if (data[0].values) {
-      labels.shift();
-      columns.shift();
-      return reduceLabelsAndColumns(data[0].values, labels, columns);
-    } else {
-      return labels;
-    }
-  } else {
-    return labels;
-  }
-}
-
 function renameRow(row, columns) {
   var result = new Object();
   for (const [key, value] of Object.entries(row)) {
@@ -92,8 +63,10 @@ function renameRow(row, columns) {
 function getKeyName(key, columns) {
   var result = "";
   columns.forEach(function(entry) {
+    var str=entry.name.split(" ");
+
     if (entry.id == key) {
-      if (entry.name == "Count") {
+      if (str[0] === "Count" || str[0]==="Average"|| str[0]==="Max" ||str[0]==="Median"||str[0]==="Min"|| str[0]==="Sum") {
         result = "value";
       } else {
         result = entry.name;
@@ -104,9 +77,10 @@ function getKeyName(key, columns) {
 }
 
 function getKeyLabels(columns) {
-  var keyLabels = [];
+  var keyLabels = [];  
   columns.forEach(function(entry) {
-    if (entry.name != "Count") {
+    var str=entry.name.split(" ");
+    if (str[0]!=="Count" || str[0]!=="Average" || str[0]!=="Max"||str[0]!=="Median"||str[0]!=="Min"||str[0]!=="Sum") {
       keyLabels.push(entry.name);
     }
   });

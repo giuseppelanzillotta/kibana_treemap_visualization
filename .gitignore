@@ -1,6 +1,7 @@
 *.sh
 *.zip
-
+*.js.save
+*.lock
 package-lock.json
 
 # Logs
