@@ -284,13 +284,7 @@ export function renderTreeMap(o, data) {
 
     g.selectAll("rect")
       .style("fill", function(d) {
-        var values = [];
-        d.parent.values.forEach(function(entry) {
-          values.push(entry.area);
-        });
-        var pos = Math.floor((values.indexOf(d.area) / values.length) * euiColors.length);
-        d.color = euiColors[pos];
-        return d.color;
+        return d.color=euiColors[5];
       });
 
     g.selectAll(".child")
