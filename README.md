@@ -31,10 +31,10 @@ The [initial zoomable treemap](https://bost.ocks.org/mike/treemap/) was publishe
 
 ## Installation
 
-### Kibana 6.5.4:
+### Kibana:
 
 ```
-bin/kibana-plugin install https://github.com/bgeVam/kibana_treemap_visualization/releases/download/v6.5.4/kibana_treemap_visualization.zip
+bin/kibana-plugin install https://github.com/bgeVam/kibana_treemap_visualization/releases/download/version/kibana_treemap_visualization.zip
 ```
 
 ## Uninstall
@@ -50,6 +50,4 @@ bin/kibana-plugin remove kibana_treemap_visualization
 This plugin is compatible with the following versions of Kibana:
 
 * 6.5.4
-
-## Issues
-Please file issues [here](https://github.com/bgeVam/kibana_treemap_visualization/issues).
+* 7.5.1
