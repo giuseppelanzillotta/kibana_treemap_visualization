@@ -9,7 +9,6 @@
   },
   "scripts": {
     "preinstall": "node ../../preinstall_check",
-    "build_sas":"node ../../script/build_sass",
     "kbn": "node ../../scripts/kbn",
     "es": "node ../../scripts/es",
     "lint": "eslint .",
