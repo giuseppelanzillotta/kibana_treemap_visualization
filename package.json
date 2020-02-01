@@ -1,7 +1,7 @@
 {
   "name": "treemap",
-  "version": "0.0.0",
-  "description": "An awesome Kibana plugin",
+  "version": "7.5.1",
+  "description": "Kibana treemap visualization",
   "main": "index.js",
   "kibana": {
     "version": "7.5.1",
@@ -9,7 +9,7 @@
   },
   "scripts": {
     "preinstall": "node ../../preinstall_check",
-    "build sas":"node ../../script/build_sass",
+    "build_sas":"node ../../script/build_sass",
     "kbn": "node ../../scripts/kbn",
     "es": "node ../../scripts/es",
     "lint": "eslint .",

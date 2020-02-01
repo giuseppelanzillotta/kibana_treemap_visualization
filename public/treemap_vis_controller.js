@@ -12,7 +12,7 @@ export default class TreemapVisualizationController {
     this.el.innerHTML = '';
   }
 
-  render(table, status) {
+  render(table) {
     this.destroy();
     var treemap = document.createElement('div');
     treemap.setAttribute("id", "treemap");
