@@ -12,8 +12,8 @@ var defaults = {
   },
   rootname: "TOP",
   format: ",d",
-  width: 0,
-  height: 0
+  width: 960,
+  height: 500
 };
 
 export function renderTreeMap(o, data) {
@@ -311,6 +311,54 @@ export function renderTreeMap(o, data) {
       return "#" + (0x1000000 + (Math.round((t - R) * p) + R) * 0x10000 + (Math.round((t - G) * p) + G) * 0x100 + (Math.round((t - B) * p) + B)).toString(16).slice(1);
     }
 
+    function childClicked(d) {
+      console.log("child clicked, add filter where " + d.label + " = " + d.key)
+      var index = o.childLabels.indexOf(d.label);
+      var bucketAgg = o.table.columns[index].aggConfig;
+      if (o.table.rows.length > 1) {
+        const filter = bucketAgg.createFilter(d.key);
+        var queryFilter = o.vis.API.queryFilter;
+        queryFilter.addFilters(filter);
+      }
+      return transition(d);
+    }
+
+    function transition(d) {
+      if (transitioning || !d) return;
+      transitioning = true;
+      var g2 = display(d),
+        t1 = g1.transition().duration(750),
+        t2 = g2.transition().duration(750);
+      // Update the domain only after entering new elements.
+      x.domain([d.x, d.x + d.dx]);
+      y.domain([d.y, d.y + d.dy]);
+
+      // Enable anti-aliasing during the transition.
+      svg.style("shape-rendering", null);
+
+      // Draw child nodes on top of parent nodes.
+      svg.selectAll(".depth").sort(function(a, b) {
+        return a.depth - b.depth;
+      });
+
+      // Fade-in entering text.
+      g2.selectAll("text").style("fill-opacity", 0);
+
+      // Transition to the new view.
+      t1.selectAll(".ptext").call(text).style("fill-opacity", 0);
+      t1.selectAll(".ctext").call(text2).style("fill-opacity", 0);
+      t2.selectAll(".ptext").call(text).style("fill-opacity", 1);
+      t2.selectAll(".ctext").call(text2).style("fill-opacity", 1);
+      t1.selectAll("rect").call(rect);
+      t2.selectAll("rect").call(rect);
+
+      // Remove the old node when the transition is finished.
+      t1.remove().each("end", function() {
+        svg.style("shape-rendering", "crispEdges");
+        transitioning = false;
+      });
+    }
+
     return g;
   }
 
@@ -319,7 +367,7 @@ export function renderTreeMap(o, data) {
       .attr("x", function(d) {
         return x(d.x) + 6;
       })
-      .attr("x", function(d) {
+    text.attr("x", function(d) {
         return x(d.x) + 6;
       })
       .attr("y", function(d) {

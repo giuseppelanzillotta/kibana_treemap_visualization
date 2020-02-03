@@ -1,3 +1,4 @@
+import optionsTemplate from './options_template.html';
 import TreemapVisualizationController from './treemap_vis_controller';
 import {Schemas} from 'ui/vis/editors/default/schemas';
 import {visFactory} from 'ui/vis/vis_factory';
@@ -16,6 +17,7 @@ function TreemapVisualizationProvider() {
     description: 'Display values in a treemap visualization',
     visualization: TreemapVisualizationController,
     editorConfig: {
+      optionsTemplate: optionsTemplate,
       schemas: new Schemas([{
         group: 'metrics',
         name: 'metric',
