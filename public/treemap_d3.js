@@ -1,7 +1,4 @@
-import {
-  colorPalette,
-  palettes,
-} from '@elastic/eui/lib/services';
+import {palettes} from '@elastic/eui/lib/services';
 
 var defaults = {
   margin: {
@@ -19,14 +16,11 @@ var defaults = {
 export function renderTreeMap(o, data) {
   var root,
     opts = $.extend(true, {}, defaults, o),
-    formatNumber = d3.format(opts.format),
     rname = opts.rootname,
-    margin = opts.margin,
-    theight = 36 + 16;
+    margin = opts.margin;
   $('#treemap').width(opts.width).height(opts.height);
-  var width = opts.width - margin.left - margin.right,
-    height = opts.height - margin.top - margin.bottom - theight,
-    transitioning;
+  var width = opts.width,
+    height = opts.height;
 
   const euiColors = palettes.euiPaletteColorBlind.colors;
 
@@ -45,17 +39,15 @@ export function renderTreeMap(o, data) {
     .sort(function(a, b) {
       return a.value - b.value;
     })
-    .ratio(height / width * 0.5 * (1 + Math.sqrt(5)))
     .round(false);
 
   var svg = d3.select("#treemap").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.bottom + margin.top)
-    .style("margin-left", -margin.left + "px")
-    .style("margin.right", -margin.right + "px")
+    .attr("width", width)
+    .attr("height", height)
+    .style("margin-left", margin.left + "px")
+    .style("margin.right", margin.right + "px")
     .append("g")
-    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
-    .style("shape-rendering", "crispEdges");
+      .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
   if (data instanceof Array) {
     root = {
@@ -70,116 +62,21 @@ export function renderTreeMap(o, data) {
   layout(root);
   display(root);
 
-  //Show tooltip, when mouse moves over parent
-  $(".children rect.parent").mousemove(function(event) {
-    updateTooltip($(this)[0], event.pageX, event.pageY)
-  });
-
-  //Hide tooltip, when mouse leaves parent
-  $(".children rect.parent").mouseleave(function(event) {
-    var tooltipDiv = $(".vis-tooltip");
-    tooltipDiv
-      .css('left', '-500px')
-      .css('top', '-500px')
-      .css('visibility', 'hidden')
-      .css('padding', '0px');
-  });
-
-  function updateTooltip(parent, x, y) {
-    var tooltipDiv = $(".vis-tooltip");
-    tooltipDiv
-      .css('left', x + 'px')
-      .css('top', y + 'px')
-      .css('visibility', 'visible')
-      .css('padding', '10px');
-    var tooltipTable = getToolTipTable(parent);
-    $('.vis-tooltip').empty();
-    $('.vis-tooltip').append(tooltipTable);
-  }
-
-  function getToolTipTable(parent) {
-    var table1 = `<table class="ng-scope"><tbody>` + getTableRows(parent) + `</tbody></table>`;
-    return table1
-  }
-
-  function getTableRows(parent) {
-    return `<tr ng-repeat="detail in details" class="ng-scope">
-      <td class="tooltip-label ng-binding">Count</td>
-      <td class="tooltip-value ng-binding" style="padding-left: 10px;">
-          ` + parent.__data__.value + ` (` + getShare(parent.__data__) + `%)
-      </td>
-    </tr>
-    <tr ng-repeat="detail in details" class="ng-scope">
-      <td class="tooltip-label ng-binding"></td>
-      <td class="tooltip-value ng-binding" style="padding-left: 10px;"> ` + getTooltipLabel(parent.__data__) + parent.__data__.key + `          </td>
-    </tr>`;
-  }
-
-  function getShare(d) {
-    return ((
-          d.value /
-          d.parent.values.reduce(function(cnt, o) {
-            return cnt + o.value;
-          }, 0)) *
-        100)
-      .toFixed(2);
-  }
-
-  function getTooltipLabel(d) {
-    var tooltipLabels = [];
-    for (const [key, value] of Object.entries(o.table.rows[0])) {
-      tooltipLabels.push(value)
-    }
-    var queryFilter = o.vis.API.queryFilter;
-    var filters = queryFilter.getFilters();
-    var queries = [];
-    filters.forEach(function(filter) {
-      if (filter) {
-        if (filter.query && !filter.meta.disabled) {
-          if (filter.query.match) {
-            queries.push(Object.entries(filter.query.match)["0"][1].query);
-          }
-        }
-      }
-    });
-    var result = "";
-    tooltipLabels.forEach(function(tooltipLabel) {
-      if (queries.includes(tooltipLabel)) {
-        result += tooltipLabel + " <br>" + getBlanks(result) + "L&ensp;";
-      }
-    });
-    return result;
-  }
-
-  function getBlanks(str) {
-    var depth = (str.match(/<br>/g) || []).length;
-    var result = "";
-    for (var i = 0; i <= depth; i++) {
-      result += "&emsp;";
-    }
-    return result;
-  }
   //Highlight siblings when parent is hovered over
   $(".children rect.parent").hover(
     function(event) {
       // Highlight child by occluding the others
-      $(this).parent().siblings().css("fill-opacity", "0.7");
+      $(this).parent().siblings().css("fill-opacity", "1");
       $(this).parent().siblings().children().children().css("fill-opacity", "0.5");
     },
     function(event) {
       // Reset highlight
-      $(this).parent().siblings().css("fill-opacity", "0.1");
+      $(this).parent().siblings().css("fill-opacity", "1");
       $(this).parent().siblings().children().children().css("fill-opacity", "1");
+      $(this).parent().text().css("fill", "white");
     }
   );
-
-  if (window.parent !== window) {
-    var myheight = document.documentElement.scrollHeight || document.body.scrollHeight;
-    window.parent.postMessage({
-      height: myheight
-    }, '*');
-  }
-
+  
   function initialize(root) {
     root.x = root.y = 0;
     root.dx = width;
@@ -235,20 +132,17 @@ export function renderTreeMap(o, data) {
   }
 
   function display(d) {
-    var g1 = svg.insert("g", ".grandparent")
+    var g1 = svg.append("g", ".grandparent")
       .datum(d)
       .attr("class", "depth");
     var g = g1.selectAll("g")
       .data(d._children)
-      .enter().append("g");
-    g.filter(function(d) {
-        return d._children;
-      })
-      .classed("children", true)
-      .on("click", childClicked);
+      .enter().append("g")
+      .classed("children", true);
+     
     var children = g.selectAll(".child")
       .data(function(d) {
-        return d._children || [d];
+        return d._children;
       })
       .enter().append("g");
 
@@ -259,7 +153,15 @@ export function renderTreeMap(o, data) {
     children.append("text")
       .attr("class", "ctext")
       .text(function(d) {
-        return d.key;
+        console.log(d);
+        var textLength = Math.ceil(d.dx/14);
+        var ctext;
+        if (d.key && d.key.length > textLength) {
+          ctext = d.key.substring(0, textLength) + "...";
+        } else {
+          ctext = d.key;
+        }
+        return ctext;      
       })
       .call(text2);
 
@@ -269,21 +171,13 @@ export function renderTreeMap(o, data) {
     var t = g.append("text")
       .attr("class", "ptext")
       .attr("dy", ".75em")
-    t.append("tspan")
       .text(function(d) {
-        var ptextLength = Math.ceil(d.dx / 14);
-        var ptext;
-        if (d.key && d.key.length > ptextLength) {
-          ptext = d.key.substring(0, ptextLength) + "...";
-        } else {
-          ptext = d.key;
-        }
-        return ptext;
+        return d.key;
       });
-    t.call(text);
+    t.call(text1);
 
     g.selectAll("rect")
-      .style("fill", function(d) {
+      .style("fill", function(d) {      
         return d.color=euiColors[5];
       });
 
@@ -293,9 +187,7 @@ export function renderTreeMap(o, data) {
         d.parent.values.forEach(function(entry) {
           values.push(entry.area);
         });
-        // Assign color by value of scale
-        // var color = colorPalette(shadeColor2(d.parent.color, 0.9), d.parent.color, values.length)[values.indexOf(d.area)];
-        // Assign color by area
+        
         var shadingRate = 1 - (d.area / values[values.length - 1] + 0.4);
         var color = shadeColor2(d.parent.color ? d.parent.color : d.color, shadingRate);
         return color;
@@ -311,59 +203,11 @@ export function renderTreeMap(o, data) {
       return "#" + (0x1000000 + (Math.round((t - R) * p) + R) * 0x10000 + (Math.round((t - G) * p) + G) * 0x100 + (Math.round((t - B) * p) + B)).toString(16).slice(1);
     }
 
-    function childClicked(d) {
-      console.log("child clicked, add filter where " + d.label + " = " + d.key)
-      var index = o.childLabels.indexOf(d.label);
-      var bucketAgg = o.table.columns[index].aggConfig;
-      if (o.table.rows.length > 1) {
-        const filter = bucketAgg.createFilter(d.key);
-        var queryFilter = o.vis.API.queryFilter;
-        queryFilter.addFilters(filter);
-      }
-      return transition(d);
-    }
-
-    function transition(d) {
-      if (transitioning || !d) return;
-      transitioning = true;
-      var g2 = display(d),
-        t1 = g1.transition().duration(750),
-        t2 = g2.transition().duration(750);
-      // Update the domain only after entering new elements.
-      x.domain([d.x, d.x + d.dx]);
-      y.domain([d.y, d.y + d.dy]);
-
-      // Enable anti-aliasing during the transition.
-      svg.style("shape-rendering", null);
-
-      // Draw child nodes on top of parent nodes.
-      svg.selectAll(".depth").sort(function(a, b) {
-        return a.depth - b.depth;
-      });
-
-      // Fade-in entering text.
-      g2.selectAll("text").style("fill-opacity", 0);
-
-      // Transition to the new view.
-      t1.selectAll(".ptext").call(text).style("fill-opacity", 0);
-      t1.selectAll(".ctext").call(text2).style("fill-opacity", 0);
-      t2.selectAll(".ptext").call(text).style("fill-opacity", 1);
-      t2.selectAll(".ctext").call(text2).style("fill-opacity", 1);
-      t1.selectAll("rect").call(rect);
-      t2.selectAll("rect").call(rect);
-
-      // Remove the old node when the transition is finished.
-      t1.remove().each("end", function() {
-        svg.style("shape-rendering", "crispEdges");
-        transitioning = false;
-      });
-    }
-
     return g;
   }
 
-  function text(text) {
-    text.selectAll("tspan")
+  function text1(text) {
+    text.selectAll("text")
       .attr("x", function(d) {
         return x(d.x) + 6;
       })
@@ -372,7 +216,8 @@ export function renderTreeMap(o, data) {
       })
       .attr("y", function(d) {
         return y(d.y) + 6;
-      });
+      })
+      .attr("fill","white");
   }
 
   function text2(text) {

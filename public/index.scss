@@ -34,14 +34,11 @@ div.treemap rect.parent {
 }
 
 .children text.ctext {
-    font-weight: bold;
     font-size: 16px;
     text-align: center;
     margin-top: 6px;
     margin-bottom: 6px;
     fill: white;
-    opacity: 0.45;
-    text-shadow: -0.5px 0 grey, 0 0.5px grey, 0.5px 0 grey, 0 -0.5px grey;
 }
 
 
@@ -51,7 +48,7 @@ div.treemap rect.parent {
     margin-top: 6px;
     margin-bottom: 6px;
     fill: white;
-    opacity: 0.85;
+    opacity: 1;
 }
 
 .children:hover rect.child {
